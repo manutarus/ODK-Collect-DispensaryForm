@@ -6,9 +6,9 @@
 		<xf:title>Dispensary Form</xf:title>
 		<xf:model id="openmrs_model">
 			<xf:instance id="openmrs_model_instance">
-				<form id="394" name="Dispensary Form" version="0.1" xmlns:openmrs="/moduleServlet/formentry/forms/schema/4-1" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003">
+				<form id="394" name="Dispensary Form" version="0.1.1" xmlns:openmrs="/moduleServlet/formentry/forms/schema/4-1" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003">
 					<header>
-						<enterer/>
+					<enterer/>
 						<date_entered/>
 						<session/>
 						<uid/>
@@ -486,23 +486,33 @@
 		    <bind id="patient.medical_record_number" nodeset="/form/patient/patient.medical_record_number" type="string" readonly="true()"
 		    	calculate="if (../tmp/amrs_id_scan != '',../tmp/amrs_id_scan,../tmp/amrs_id_manual)"/> -->
 			<bind id="patient.medical_record_number" nodeset="/form/patient/patient.medical_record_number" type="string" readonly="true()"/>
-			
-			<!--  Birth Date Calculations -->
-		    <!-- UNCOMMENTED TO CALCULATE DATE (IF NOT USING mCLINIC OR REGISTERING PATIENTS)
-		    <bind id="birthdate_type" nodeset="/form/patient/tmp/birthdate_type" type="string" required="true()"/>
-			<bind id="age" nodeset="/form/patient/tmp/age" type="int" relevant="../birthdate_type = 'age'" required="true()"
-				constraint=". &gt;= 18 and . &lt;=125" jr:constraintMsg="Allowed ages is between 18 and 125 years"/>
-			<bind id="birthdate" nodeset="/form/patient/tmp/birth_date" type="date" relevant="../birthdate_type = 'birthdate'" required="true()"
-				constraint=". &lt;= today()" jr:constraintMsg="Birthdate cannot be in the future"/>
-			<bind id="birthdate_estimated" nodeset="/form/patient/tmp/birthdate_estimated" relevant="../birthdate_type = 'birthdate'" required="true()"/>
-		    <bind id="patient.birthdate" nodeset="/form/patient/patient.birthdate" type="date"
-		    	calculate="if(../tmp/birthdate_type = 'age',  date(today() - (../tmp/age) * 365.2425), ../tmp/birth_date)"/>
-		    <bind id="age_in_years" nodeset="/form/patient/tmp/age_in_years" type="decimal"
-		    	calculate="if(../birthdate_type = 'age', ../age, int(today() - ../../patient.birthdate))"/>
-		    <bind id="patient.birthdate_estimated" nodeset="/form/patient/patient.birthdate_estimated" type="string"
-		    	calculate="if(../tmp/birthdate_type = 'age', 'true', ../tmp/birthdate_estimated)"/> -->
-			<bind id="patient.birthdate" nodeset="/form/patient/patient.birthdate" type="date" readonly="true()"/>
-		    <bind id="patient.birthdate_estimated" nodeset="/form/patient/patient.birthdate_estimated" type="string" readonly="true()"/>		    	
+
+            <!--  Birth Date Calculations -->
+            <!-- UNCOMMENTED TO CALCULATE DATE (IF NOT USING mCLINIC OR REGISTERING PATIENTS)
+            <bind id="birthdate_type" nodeset="/form/patient/tmp/birthdate_type" type="string" required="true()"/>
+            <bind id="age" nodeset="/form/patient/tmp/age" type="int" relevant="../birthdate_type = 'age'" required="true()"
+                constraint=". &gt;= 18 and . &lt;=125" jr:constraintMsg="Allowed ages is between 18 and 125 years"/>
+            <bind id="birthdate" nodeset="/form/patient/tmp/birth_date" type="date" relevant="../birthdate_type = 'birthdate'" required="true()"
+                constraint=". &lt;= today()" jr:constraintMsg="Birthdate cannot be in the future"/>
+            <bind id="birthdate_estimated" nodeset="/form/patient/tmp/birthdate_estimated" relevant="../birthdate_type = 'birthdate'" required="true()"/>
+            <bind id="patient.birthdate" nodeset="/form/patient/patient.birthdate" type="date"
+                calculate="if(../tmp/birthdate_type = 'age',  date(today() - (../tmp/age) * 365.2425), ../tmp/birth_date)"/>
+            <bind id="age_in_years" nodeset="/form/patient/tmp/age_in_years" type="decimal"
+                calculate="if(../birthdate_type = 'age', ../age, int(today() - ../../patient.birthdate))"/>
+            <bind id="patient.birthdate_estimated" nodeset="/form/patient/patient.birthdate_estimated" type="string"
+                calculate="if(../tmp/birthdate_type = 'age', 'true', ../tmp/birthdate_estimated)"/> -->
+
+
+
+            <bind id="age_in_years" nodeset="/form/patient/tmp/age_in_years" type="decimal"
+                  calculate="if(../birthdate_type = 'age', ../age, ((now() - /form/patient/patient.birthdate) div 365.2425))"/>
+
+
+
+
+
+            <bind id="patient.birthdate" nodeset="/form/patient/patient.birthdate" type="date" readonly="true()"/>
+            <bind id="patient.birthdate_estimated" nodeset="/form/patient/patient.birthdate_estimated" type="string" readonly="true()"/>
 			
 			<bind id="patient.family_name" nodeset="/form/patient/patient.family_name" type="string" readonly="true()"/>
 			<bind id="patient.given_name" nodeset="/form/patient/patient.given_name" required="true()" type="string" readonly="true()"/>
@@ -707,36 +717,36 @@
 						selected(../../review_of_systems_general/xforms_value, 'shortness_of_breath_with_exertion') or
 						selected(../../review_of_systems_general/xforms_value, 'oliguria') or
 						selected(../../review_of_systems_general/xforms_value, 'focal_weakness'))"/>
-						
-			<bind id="htn_reminder_2" nodeset="/form/obs/htn_reminders/reminder_2" readonly="true()" type="string"
-				relevant="../../current_visit_type/value = '7034^FIRST DISPENSARY VISIT AFTER HCT^99DCT' 
-				and ((../../systolic_blood_pressure/value &gt;= 140 and ../../systolic_blood_pressure/value &lt; 180) 
+
+            <bind id="htn_reminder_2" nodeset="/form/obs/htn_reminders/reminder_2" readonly="true()" type="string"
+                  relevant="(../../current_visit_type/value = '7034^FIRST DISPENSARY VISIT AFTER HCT^99DCT')
+				and ((../../systolic_blood_pressure/value &gt;= 140 and ../../systolic_blood_pressure/value &lt; 180)
 					or (../../diastolic_blood_pressure/value &gt;= 90 and ../../diastolic_blood_pressure/value &lt; 110))
-				and ../../urine_pregnancy_test_qualitative/value != '703^POSITIVE^99DCT'
-				and ../../../patient/tmp/age_in_years &lt; 35
-				and not(selected(../../review_of_systems_general/xforms_value, 'edema_legs') or 
+				and (../../urine_pregnancy_test_qualitative/value != '703^POSITIVE^99DCT')
+				and (/form/patient/tmp/age_in_years &lt; 35)
+				and not(selected(../../review_of_systems_general/xforms_value, 'edema_legs') or
 						selected(../../review_of_systems_general/xforms_value, 'shortness_of_breath_with_exertion') or
 						selected(../../review_of_systems_general/xforms_value, 'oliguria') or
 						selected(../../review_of_systems_general/xforms_value, 'focal_weakness'))"/>
-				
+
 			<bind id="htn_reminder_3a" nodeset="/form/obs/htn_reminders/reminder_3a" readonly="true()" type="string"
 				relevant="../../current_visit_type/value = '7034^FIRST DISPENSARY VISIT AFTER HCT^99DCT' 
 				and ((../../systolic_blood_pressure/value &gt;= 140 and ../../systolic_blood_pressure/value &lt; 180) 
 					or (../../diastolic_blood_pressure/value &gt;= 90 and ../../diastolic_blood_pressure/value &lt; 110)) 
 				and ../../urine_pregnancy_test_qualitative/value != '703^POSITIVE^99DCT' 
-				and ../../../patient/tmp/age_in_years &gt;= 35
+				and /form/patient/tmp/age_in_years &gt;= 35
 				and not(selected(../../review_of_systems_general/xforms_value, 'edema_legs') or 
 						selected(../../review_of_systems_general/xforms_value, 'shortness_of_breath_with_exertion') or
 						selected(../../review_of_systems_general/xforms_value, 'oliguria') or
 						selected(../../review_of_systems_general/xforms_value, 'focal_weakness'))
 				and (../../serum_glucose_fasting/value &lt; 5.6 or ../../glycosylated_hemoglobin/value &lt; 5.7)"/>
-			
+
 			<bind id="htn_reminder_3b" nodeset="/form/obs/htn_reminders/reminder_3b" readonly="true()" type="string"
 				relevant="../../current_visit_type/value = '7034^FIRST DISPENSARY VISIT AFTER HCT^99DCT' 
 				and ((../../systolic_blood_pressure/value &gt;= 140 and ../../systolic_blood_pressure/value &lt; 180) 
 					or (../../diastolic_blood_pressure/value &gt;= 90 and ../../diastolic_blood_pressure/value &lt; 110)) 
 				and ../../urine_pregnancy_test_qualitative/value != '703^POSITIVE^99DCT' 
-				and ../../../patient/tmp/age_in_years &gt;= 35
+				and /form/patient/tmp/age_in_years &gt;= 35
 				and not(selected(../../review_of_systems_general/xforms_value, 'edema_legs') or 
 						selected(../../review_of_systems_general/xforms_value, 'shortness_of_breath_with_exertion') or
 						selected(../../review_of_systems_general/xforms_value, 'oliguria') or
@@ -745,13 +755,13 @@
 					selected(../../tmp_drugs, 'hctz') or
 					selected(../../tmp_drugs, 'losartan') or
 					selected(../../tmp_drugs, 'nifedipine'))"/>
-			
+
 			<bind id="htn_reminder_3c" nodeset="/form/obs/htn_reminders/reminder_3c" readonly="true()" type="string"
 				relevant="../../current_visit_type/value = '7034^FIRST DISPENSARY VISIT AFTER HCT^99DCT' 
 				and ((../../systolic_blood_pressure/value &gt;= 140 and ../../systolic_blood_pressure/value &lt; 180) 
 					or (../../diastolic_blood_pressure/value &gt;= 90 and ../../diastolic_blood_pressure/value &lt; 110)) 
 				and ../../urine_pregnancy_test_qualitative/value != '703^POSITIVE^99DCT' 
-				and ../../../patient/tmp/age_in_years &gt;= 35
+				and /form/patient/tmp/age_in_years &gt;= 35
 				and not(selected(../../review_of_systems_general/xforms_value, 'edema_legs') or 
 						selected(../../review_of_systems_general/xforms_value, 'shortness_of_breath_with_exertion') or
 						selected(../../review_of_systems_general/xforms_value, 'oliguria') or
@@ -765,13 +775,13 @@
 			<bind id="htn_reminder_5" nodeset="/form/obs/htn_reminders/reminder_5" readonly="true()" type="string"
 				relevant="(../../systolic_blood_pressure/value &gt;= 140 or ../../diastolic_blood_pressure/value &gt;= 90)
 				and ../../urine_pregnancy_test_qualitative/value = '703^POSITIVE^99DCT'"/>
-			
+
 			<bind id="htn_reminder_6a" nodeset="/form/obs/htn_reminders/reminder_6a" readonly="true()" type="string"
 				relevant="../../current_visit_type/value = '7035^SECOND DISPENSARY VISIT AFTER HCT ^99DCT'
 				and ((../../systolic_blood_pressure/value &gt;= 140 and ../../systolic_blood_pressure/value &lt; 180) 
 					or (../../diastolic_blood_pressure/value &gt;= 90 and ../../diastolic_blood_pressure/value &lt; 110)) 
 				and ../../urine_pregnancy_test_qualitative/value != '703^POSITIVE^99DCT'
-				and ../../../patient/tmp/age_in_years &gt;= 35
+				and /form/patient/tmp/age_in_years &gt;= 35
 				and not(selected(../../review_of_systems_general/xforms_value, 'edema_legs') or 
 						selected(../../review_of_systems_general/xforms_value, 'shortness_of_breath_with_exertion') or
 						selected(../../review_of_systems_general/xforms_value, 'oliguria') or
@@ -781,7 +791,7 @@
 						selected(../../tmp_drugs, 'losartan') or
 						selected(../../tmp_drugs, 'nifedipine'))
 				and (../../serum_glucose_fasting/value &lt; 5.6 or ../../glycosylated_hemoglobin/value &lt; 5.7)"/>
-			
+
 			<bind id="htn_reminder_6b" nodeset="/form/obs/htn_reminders/reminder_6b" readonly="true()" type="string"
 				relevant="../../current_visit_type/value = '7035^SECOND DISPENSARY VISIT AFTER HCT ^99DCT'
 				and ((../../systolic_blood_pressure/value &gt;= 140 and ../../systolic_blood_pressure/value &lt; 180) 
@@ -806,7 +816,7 @@
 					selected(../../review_of_systems_general/xforms_value, 'shortness_of_breath_with_exertion') or
 					selected(../../review_of_systems_general/xforms_value, 'oliguria') or
 					selected(../../review_of_systems_general/xforms_value, 'focal_weakness'))"/>
-			
+
 			<bind id="htn_reminder_8" nodeset="/form/obs/htn_reminders/reminder_8" readonly="true()" type="string"
 				relevant="../../current_visit_type/value != '7034^FIRST DISPENSARY VISIT AFTER HCT^99DCT'
 				and ../../systolic_blood_pressure/value &lt; 140 and ../../diastolic_blood_pressure/value &lt; 90 
@@ -816,9 +826,14 @@
 						selected(../../review_of_systems_general/xforms_value, 'shortness_of_breath_with_exertion') or
 						selected(../../review_of_systems_general/xforms_value, 'oliguria') or
 						selected(../../review_of_systems_general/xforms_value, 'focal_weakness'))
-				and (selected(../../tmp_drugs, 'hctz') 
-						and ../../patient_reported_current_other_treatment_3/number_of_milligram/value = 25
-						and ../../patient_reported_current_other_treatment_3/medication_frequency_per_day/value = '1891^ONCE A DAY^99DCT')"/>
+				and (selected(/form/obs/tmp_drugs, 'hctz ')
+						and /form/obs/patient_reported_current_other_treatment_3/number_of_milligram/value = 25.0
+						and (selected(/form/obs/patient_reported_current_other_treatment_3/medication_frequency_per_day/value, '1639^MORNING^99DCT') or
+                             selected(/form/obs/patient_reported_current_other_treatment_3/medication_frequency_per_day/value, '1730^EVENING^99DCT') or
+                             selected(/form/obs/patient_reported_current_other_treatment_3/medication_frequency_per_day/value, '1891^ONCE A DAY^99DCT')
+						     )
+					)"/>
+
 			<bind id="htn_reminder_9" nodeset="/form/obs/htn_reminders/reminder_9" readonly="true()" type="string"
 				relevant="../../current_visit_type/value = '7036^RETURN DISPENSARY VISIT^99DCT'
 				and ((../../systolic_blood_pressure/value &gt;= 140 and ../../systolic_blood_pressure/value &lt; 180) 
@@ -829,9 +844,13 @@
 						selected(../../review_of_systems_general/xforms_value, 'shortness_of_breath_with_exertion') or
 						selected(../../review_of_systems_general/xforms_value, 'oliguria') or
 						selected(../../review_of_systems_general/xforms_value, 'focal_weakness'))
-				and (selected(../../tmp_drugs, 'hctz') 
-						and ../../patient_reported_current_other_treatment_3/number_of_milligram/value = 25
-						and ../../patient_reported_current_other_treatment_3/medication_frequency_per_day/value = '1891^ONCE A DAY^99DCT')"/>
+				and (selected(/form/obs/tmp_drugs, 'hctz ')
+						and /form/obs/patient_reported_current_other_treatment_3/number_of_milligram/value = 25.0
+						and (selected(/form/obs/patient_reported_current_other_treatment_3/medication_frequency_per_day/value, '1639^MORNING^99DCT') or
+                             selected(/form/obs/patient_reported_current_other_treatment_3/medication_frequency_per_day/value, '1730^EVENING^99DCT') or
+                             selected(/form/obs/patient_reported_current_other_treatment_3/medication_frequency_per_day/value, '1891^ONCE A DAY^99DCT')
+						     )
+					)"/>
 						
 			<bind id="htn_reminder_10" nodeset="/form/obs/htn_reminders/reminder_10" readonly="true()" type="string"
 				relevant="../../systolic_blood_pressure/value &lt; 100 or ../../diastolic_blood_pressure/value &lt; 50"/>
@@ -881,28 +900,36 @@
 			<bind id="diabetes_reminder_7" nodeset="/form/obs/diabetes_reminders/reminder_7" readonly="true()" type="string"
 				relevant="selected(../../tmp_drugs, 'glibenclamide') 
 				and selected(../../review_of_systems_general/xforms_value, 'hypoglycemia')"/>
+
 			<bind id="diabetes_reminder_8" nodeset="/form/obs/diabetes_reminders/reminder_8" readonly="true()" type="string"
 				relevant="../../current_visit_type/value = '7036^RETURN DISPENSARY VISIT^99DCT'
 				and ../../urine_pregnancy_test_qualitative/value != '703^POSITIVE^99DCT'
-				and ../../serum_glucose_fasting/value &gt;= 8.0 
-				and selected(../../tmp_drugs, 'metformin')
-				and ../../patient_reported_current_other_treatment/number_of_milligram/value = 500
-				and not(selected(../../review_of_systems_general/xforms_value, 'nausea') or 
-					selected(../../review_of_systems_general/xforms_value, 'vomiting') or
-					selected(../../review_of_systems_general/xforms_value, 'abdominal_pain') or
-					selected(../../review_of_systems_general/xforms_value, 'diarrhea') or
-					selected(../../review_of_systems_general/xforms_value, 'constipation'))"/>
+				and ../../serum_glucose_fasting/value &gt;= 8.0
+				and not(selected(../../review_of_systems_general/xforms_value, 'nausea') or
+						selected(../../review_of_systems_general/xforms_value, 'abdominal_pain') or
+						selected(../../review_of_systems_general/xforms_value, 'diarrhea') or
+						selected(../../review_of_systems_general/xforms_value, 'constipation'))
+				and (selected(/form/obs/tmp_drugs, 'metformin')
+						and /form/obs/patient_reported_current_other_treatment/number_of_milligram/value = 500.0
+						and (selected(/form/obs/patient_reported_current_other_treatment/medication_frequency_per_day/value, '1888^TWICE A DAY^99DCT')
+						     )
+					)"/>
+
 			<bind id="diabetes_reminder_9" nodeset="/form/obs/diabetes_reminders/reminder_9" readonly="true()" type="string"
-				relevant="../../current_visit_type/value = '7036^RETURN DISPENSARY VISIT^99DCT'
+                  relevant="../../current_visit_type/value = '7036^RETURN DISPENSARY VISIT^99DCT'
 				and ../../urine_pregnancy_test_qualitative/value != '703^POSITIVE^99DCT'
-				and ../../serum_glucose_fasting/value &gt;= 8.0 
-				and selected(../../tmp_drugs, 'metformin')
-				and ../../patient_reported_current_other_treatment/number_of_milligram/value = 750
-				and not(selected(../../review_of_systems_general/xforms_value, 'nausea') or 
-					selected(../../review_of_systems_general/xforms_value, 'vomiting') or
-					selected(../../review_of_systems_general/xforms_value, 'abdominal_pain') or
-					selected(../../review_of_systems_general/xforms_value, 'diarrhea') or
-					selected(../../review_of_systems_general/xforms_value, 'constipation'))"/>
+				and ../../serum_glucose_fasting/value &gt;= 8.0
+				and not(selected(../../review_of_systems_general/xforms_value, 'nausea') or
+						selected(../../review_of_systems_general/xforms_value, 'abdominal_pain') or
+						selected(../../review_of_systems_general/xforms_value, 'diarrhea') or
+						selected(../../review_of_systems_general/xforms_value, 'constipation'))
+				and (selected(/form/obs/tmp_drugs, 'metformin')
+						and /form/obs/patient_reported_current_other_treatment/number_of_milligram/value = 750.0
+						and (selected(/form/obs/patient_reported_current_other_treatment/medication_frequency_per_day/value, '1888^TWICE A DAY^99DCT')
+						     )
+					)"/>
+
+
 			<bind id="diabetes_reminder_10" nodeset="/form/obs/diabetes_reminders/reminder_10" readonly="true()" type="string"
 				relevant="../../current_visit_type/value = '7036^RETURN DISPENSARY VISIT^99DCT'
 				and ../../urine_pregnancy_test_qualitative/value != '703^POSITIVE^99DCT'
@@ -2134,6 +2161,7 @@
 			<!-- HTN REMINDERS  -->
 			<group appearance="field-list" bind="htn_reminders">
 				<label>Hypertension Reminders</label>
+
 				<input bind="htn_reminder_1">
 					<label>Good BP. Advise on Salt reduction, Weight reduction if BMI >30, Exercise, Smoking cessation and Alcohol reduction (if applicable). DISCHARGE HOME</label>
 				</input>
@@ -2164,6 +2192,7 @@
 				<input bind="htn_reminder_7">
 					<label>Patient with Hypertension symptoms. REFER TO CO</label>
 				</input>
+
 				<input bind="htn_reminder_8">
 					<label>BP good. Continue HCTZ 25mg a day. Advise on Salt reduction, Weight reduction if BMI >30, Exercise, Smoking cessation and Alcohol reduction (if applicable). RETURN TO DISPENSARY in 4 months</label>
 				</input>
